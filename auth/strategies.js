@@ -2,12 +2,17 @@
 const { Strategy: LocalStrategy } = require('passport-local');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 
-const { User } = require('../users/models');
-const { JWT_SECRET } = require('../config');
+const { JWT_SECRET, DATABASE } = require('../config');
+const {dbGet} = require('../db-knex');
+// const { User } = require('../users/models');
 
 const localStrategy = new LocalStrategy((username, password, callback) => {
+  const knex = dbGet();
   let user;
-  User.findOne({ username: username })
+
+  // User.findOne({ username: username })
+  knex('users')
+    .where('username', username)  
     .then(_user => {
       user = _user;
       if (!user) {

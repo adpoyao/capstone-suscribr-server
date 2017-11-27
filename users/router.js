@@ -4,7 +4,9 @@ const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const router = express.Router();
 
-const {User} = require('./models');
+// const {User} = require('./models');
+const {dbGet} = require('../db-knex');
+const knex = dbGet();
 
 // Post to register a new user
 router.post('/', jsonParser, (req, res) => {
