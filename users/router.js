@@ -3,10 +3,17 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const router = express.Router();
+const {DATABASE_URL} = require('../config');
 
-// const {User} = require('./models');
-const {dbGet} = require('../db-knex');
-const knex = dbGet();
+// const {dbGet} = require('../db-knex');
+// const knex = dbGet();
+
+const DATABASE = {
+  client: 'pg',
+  connection: DATABASE_URL,
+};
+
+const knex = require('knex')(DATABASE);
 
 // Post to register a new user
 router.post('/', jsonParser, (req, res) => {
@@ -22,7 +29,7 @@ router.post('/', jsonParser, (req, res) => {
     });
   }
 
-  const stringFields = ['username', 'password', 'firstName', 'lastName'];
+  const stringFields = ['username', 'password', 'firstname', 'lastname'];
   const nonStringField = stringFields.find(
     field => field in req.body && typeof req.body[field] !== 'string'
   );
@@ -55,8 +62,7 @@ router.post('/', jsonParser, (req, res) => {
       min: 1
     },
     password: {
-      min: 10,
-      // bcrypt truncates after 72 characters
+      min: 6,
       max: 72
     }
   };
@@ -84,12 +90,13 @@ router.post('/', jsonParser, (req, res) => {
     });
   }
 
-  let {username, password, firstName = '', lastName = ''} = req.body;
+  let {username, password, firstname = '', lastname = '', email = ''} = req.body;
   // Username and password come in pre-trimmed
-  firstName = firstName.trim();
-  lastName = lastName.trim();
+  let first_name = firstname.trim();
+  let last_name = lastname.trim();
 
-  return User.find({username})
+  return knex('users')
+    // User.find({username})
     .count()
     .then(count => {
       if (count > 0) {
@@ -102,22 +109,24 @@ router.post('/', jsonParser, (req, res) => {
         });
       }
       // If there is no existing user, hash the password
+      //TODO: convert mongoose > postgreSQL
       return User.hashPassword(password);
     })
-    .then(hash => {
-      return User.create({
-        username,
-        password: hash,
-        firstName,
-        lastName
-      });
+    .then(passhash => {
+      return knex('users')
+      // User.create({
+      //   username,
+      //   password: hash,
+      //   firstName,
+      //   lastName
+      // });
+        .insert([{username, passhash, first_name, last_name, email}])
+        .returning([username, first_name, last_name, email]);
     })
     .then(user => {
       return res.status(201).json(user.apiRepr());
     })
     .catch(err => {
-      // Forward validation errors on to the client, otherwise give a 500
-      // error because something unexpected has happened
       if (err.reason === 'ValidationError') {
         return res.status(err.code).json(err);
       }

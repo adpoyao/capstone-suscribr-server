@@ -4,7 +4,7 @@ const createKnex = require('knex');
 
 const {DATABASE_URL} = require('./config');
 
-let knex = null;
+var knex = null;
 
 function dbConnect(url = DATABASE_URL) {
   knex = createKnex({

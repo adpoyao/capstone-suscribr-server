@@ -10,8 +10,8 @@ const { router: usersRouter } = require('./users');
 const { router: subscriptionsRouter} = require('./subscriptions');
 
 const {PORT, CLIENT_ORIGIN} = require('./config');
-// const {dbConnect} = require('./db-mongoose');
 const {dbConnect} = require('./db-knex');
+// const {dbConnect} = require('./db-mongoose');
 
 const app = express();
 

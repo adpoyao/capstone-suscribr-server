@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_name TEXT,
   email TEXT,
   username TEXT NOT NULL,
-  pass_word TEXT NOT NULL
+  passhash TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS subscriptions (
@@ -30,14 +30,17 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   cc_digits INT,
   cc_nickname TEXT,
   due_date DATE,
+  active BOOLEAN NOT NULL DEFAULT 'true',
   user_id INT REFERENCES users ON DELETE CASCADE
 );
 
 -- DUMMY DATA --
-INSERT INTO users (first_name, last_name, email, username, pass_word) VALUES
+INSERT INTO users (first_name, last_name, email, username, passhash) VALUES
 ('Eddie', 'Yao', 'eddie.thinkful@gmail.com', 'adpoyao', 'abc'),
 ('Andy', 'Gaines', 'andy.thinkful@gmail.com', 'zizify', 'xyz');
 
 INSERT INTO subscriptions (subscription_name, category, price, frequency, cc_type, cc_digits, cc_nickname, due_date, user_id) VALUES
 ('Spotify', 'music', '9.99', 'monthly', 'VA', '1234', 'EddieCC', '2018-11-11', '1'),
-('NameCheap', 'work', '8.88', 'annually', 'VA', '1234', 'EddieCC', '2018-12-12', '2');
+('NameCheap', 'work', '8.88', 'annually', 'VA', '1234', 'AndyCC', '2018-12-12', '2'),
+('Netflix', 'entertainment', '5.99', 'monthly', 'MC', '1234', 'AndyCC', '2018-12-16', '2');
+
