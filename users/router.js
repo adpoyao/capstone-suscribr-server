@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const router = express.Router();
 const {DATABASE_URL} = require('../config');
+const {hashPassword} = require('./model');
 
 // const {dbGet} = require('../db-knex');
 // const knex = dbGet();
@@ -90,10 +91,10 @@ router.post('/', jsonParser, (req, res) => {
     });
   }
 
-  let {username, password, firstname = '', lastname = '', email = ''} = req.body;
+  let {username, password, firstName = '', lastName = '', email = ''} = req.body;
   // Username and password come in pre-trimmed
-  let first_name = firstname.trim();
-  let last_name = lastname.trim();
+  let first_name = firstName.trim();
+  let last_name = lastName.trim();
 
   return knex('users')
     // User.find({username})
@@ -108,9 +109,8 @@ router.post('/', jsonParser, (req, res) => {
           location: 'username'
         });
       }
-      // If there is no existing user, hash the password
       //TODO: convert mongoose > postgreSQL
-      return User.hashPassword(password);
+      return hashPassword(password);
     })
     .then(passhash => {
       return knex('users')

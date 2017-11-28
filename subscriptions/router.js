@@ -49,7 +49,8 @@ router.post('/', jsonParser, (req, res) => {
   const {subscriptionName, category, price, frequency, ccType, ccDigits, ccNickname, dueDate, active, userId} = req.body;
   knex('subscriptions')
     .insert([{subscription_name: subscriptionName, category, price, frequency, cc_type: ccType, cc_digits: ccDigits, cc_nickname: ccNickname, due_date: dueDate, active, user_id: userId}])
-    .returning(['id'])
+    .returning('id')
+    .orderBy('id') 
     .then((result)=> {
       res.location(`/subscriptions/${result.id}`).status(201).json(result);
     })
@@ -85,8 +86,8 @@ router.put('/:id', jsonParser, (req, res) => {
 
   knex('subscriptions')
     .update({subscription_name: subscriptionName, category, price, frequency, cc_type: ccType, cc_digits: ccDigits, cc_nickname: ccNickname, due_date: dueDate, active, user_id: userId})
-    .where('user_id', req.user.id)  
-    .where('id', id)    
+    .where('user_id', req.headers.user_id)  
+    .where('id', id)   
     .then(result => {
       //TO DO: Check what result shows when id does not match id
       if(!result) {
@@ -102,7 +103,7 @@ router.put('/:id', jsonParser, (req, res) => {
 router.delete('/:id',  (req, res) => {
   const id = req.params.id;
   knex('subscriptions')
-    .where('user_id', req.user.id)
+    .where('user_id', req.headers.user_id)
     .where('id', id)
     //TO DO: How to show error when userID and ID does not match
     .del()
