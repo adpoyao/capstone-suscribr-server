@@ -2,19 +2,19 @@
 const { Strategy: LocalStrategy } = require('passport-local');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 
-const { JWT_SECRET, DATABASE } = require('../config');
-const {dbGet} = require('../db-knex');
-
 const {validatePassword} = require('../users/model');
+const { JWT_SECRET } = require('../config');
+
+const {dbGet} = require('../db-knex');
 
 const localStrategy = new LocalStrategy((username, password, callback) => {
   const knex = dbGet();
   let user;
-
   // User.findOne({ username: username })
   knex('users')
     .where('username', username)
     .then(_user => {
+      console.log('===_user', _user);
       user = _user;
       if (!user) {
         return Promise.reject({
@@ -22,7 +22,6 @@ const localStrategy = new LocalStrategy((username, password, callback) => {
           message: 'Incorrect username or password'
         });
       }
-      
       return validatePassword(password, user.hashpass);
     })
     .then(isValid => {

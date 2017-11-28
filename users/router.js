@@ -18,6 +18,7 @@ const knex = require('knex')(DATABASE);
 
 // Post to register a new user
 router.post('/', jsonParser, (req, res) => {
+  console.log('===req.body', req.body);
   const requiredFields = ['username', 'password'];
   const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -109,22 +110,16 @@ router.post('/', jsonParser, (req, res) => {
           location: 'username'
         });
       }
-      //TODO: convert mongoose > postgreSQL
       return hashPassword(password);
     })
     .then(passhash => {
+      console.log('===passhash', passhash);
       return knex('users')
-      // User.create({
-      //   username,
-      //   password: hash,
-      //   firstName,
-      //   lastName
-      // });
         .insert([{username, passhash, first_name, last_name, email}])
-        .returning([username, first_name, last_name, email]);
+        .returning(['username', 'first_name', 'last_name', 'email']);
     })
     .then(user => {
-      return res.status(201).json(user.apiRepr());
+      return res.status(201).json(user);
     })
     .catch(err => {
       if (err.reason === 'ValidationError') {
@@ -134,11 +129,12 @@ router.post('/', jsonParser, (req, res) => {
     });
 });
 
-//TODO: REMOVE USER DB TESTER IN PRODUCTION
-// router.get('/', (req, res) => {
-//   return User.find()
-//     .then(users => res.json(users.map(user => user.apiRepr())))
-//     .catch(err => res.status(500).json({message: 'Internal server error'}));
-// });
+// TODO: REMOVE USER DB TESTER IN PRODUCTION
+router.get('/', (req, res) => {
+  return knex('users')
+    .orderBy('id')
+    .then(users => res.json(users))
+    .catch(err => res.status(500).json({message: 'Internal server error'}));
+});
 
 module.exports = {router};
