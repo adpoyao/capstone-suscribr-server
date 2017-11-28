@@ -7,11 +7,13 @@ function hashPassword(password) {
   return bcrypt.hash(password, saltRounds);
 }
 
-function validatePassword (password) {
-  return bcrypt.compare(password, this.password);
+function validatePassword (password, hashpass) {
+  return bcrypt.compare(password, hashpass);
 }
 
 module.exports = {
   hashPassword,
   validatePassword
 };
+
+//add apiRepr function

@@ -6,18 +6,18 @@ const router = express.Router();
 const {DATABASE_URL} = require('../config');
 const {hashPassword} = require('./model');
 
-// const {dbGet} = require('../db-knex');
-// const knex = dbGet();
+const {dbGet} = require('../db-knex');
 
-const DATABASE = {
-  client: 'pg',
-  connection: DATABASE_URL,
-};
+// const DATABASE = {
+//   client: 'pg',
+//   connection: DATABASE_URL,
+// };
 
-const knex = require('knex')(DATABASE);
+// const knex = require('knex')(DATABASE);
 
 // Post to register a new user
 router.post('/', jsonParser, (req, res) => {
+  const knex = dbGet();
   console.log('===req.body', req.body);
   const requiredFields = ['username', 'password'];
   const missingField = requiredFields.find(field => !(field in req.body));
@@ -131,6 +131,7 @@ router.post('/', jsonParser, (req, res) => {
 
 // TODO: REMOVE USER DB TESTER IN PRODUCTION
 router.get('/', (req, res) => {
+  const knex = dbGet();  
   return knex('users')
     .orderBy('id')
     .then(users => res.json(users))

@@ -14,15 +14,15 @@ const localStrategy = new LocalStrategy((username, password, callback) => {
   knex('users')
     .where('username', username)
     .then(_user => {
-      console.log('===_user', _user);
-      user = _user;
+      user = _user[0];
+      console.log(user);
       if (!user) {
         return Promise.reject({
           reason: 'LoginError',
           message: 'Incorrect username or password'
         });
       }
-      return validatePassword(password, user.hashpass);
+      return validatePassword(password, user.passhash);
     })
     .then(isValid => {
       if (!isValid) {
