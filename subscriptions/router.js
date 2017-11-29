@@ -6,19 +6,17 @@ const {DATABASE_URL} = require ('../config');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
- 
-// const {dbGet} = require('../db-knex');
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
 
-const DATABASE = {
-  client: 'pg',
-  connection: DATABASE_URL,
-};
+const localAuth = passport.authenticate('local', {session: false});
+const jwtAuth = passport.authenticate('jwt', {session: false});
 
-const knex = require('knex')(DATABASE);
+const {dbGet} = require('../db-knex');
 
 /** RETRIEVE ALL SUBSCRIPTIONS */
-router.get('/', (req, res) => {
-  // const knex = dbGet();
+router.get('/', jwtAuth, (req, res) => {
+  const knex = dbGet();
   knex('subscriptions')
     .where('user_id', req.headers.user_id)
     .then(result => {
@@ -30,7 +28,8 @@ router.get('/', (req, res) => {
 });
 
 // /** CREATE A SUBSCRIPTION */
-router.post('/', jsonParser, (req, res) => {
+router.post('/', jsonParser, jwtAuth, (req, res) => {
+  const knex = dbGet();
   const requiredFields = ['subscriptionName', 'category', 'frequency', 'active'];
   if (Object.keys(req.body).length === 0) {
     const errorMessage = `The body must contain: ${requiredFields}`;
@@ -50,7 +49,7 @@ router.post('/', jsonParser, (req, res) => {
   knex('subscriptions')
     .insert([{subscription_name: subscriptionName, category, price, frequency, cc_type: ccType, cc_digits: ccDigits, cc_nickname: ccNickname, due_date: dueDate, active, user_id: userId}])
     .returning('id')
-    .orderBy('id') 
+    // .orderBy('id') 
     .then((result)=> {
       res.location(`/subscriptions/${result.id}`).status(201).json(result);
     })
@@ -60,8 +59,8 @@ router.post('/', jsonParser, (req, res) => {
 });
 
 /** MODIFY A SUBSCRIPTION */
-router.put('/:id', jsonParser, (req, res) => {
-
+router.put('/:id', jsonParser, jwtAuth, (req, res) => {
+  const knex = dbGet();  
   const requiredFields = ['id', 'subscriptionName', 'category', 'frequency', 'active'];
   const paramId = Number(req.params.id);
   const bodyId = Number(req.body.id);
@@ -100,7 +99,8 @@ router.put('/:id', jsonParser, (req, res) => {
 });
 
 /** DELETE A SUBSCRIPTION */
-router.delete('/:id',  (req, res) => {
+router.delete('/:id', jwtAuth, (req, res) => {
+  const knex = dbGet();  
   const id = req.params.id;
   knex('subscriptions')
     .where('user_id', req.headers.user_id)

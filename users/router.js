@@ -3,22 +3,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const router = express.Router();
-const {DATABASE_URL} = require('../config');
 const {hashPassword} = require('./model');
 
 const {dbGet} = require('../db-knex');
 
-// const DATABASE = {
-//   client: 'pg',
-//   connection: DATABASE_URL,
-// };
-
-// const knex = require('knex')(DATABASE);
-
 // Post to register a new user
 router.post('/', jsonParser, (req, res) => {
   const knex = dbGet();
-  console.log('===req.body', req.body);
   const requiredFields = ['username', 'password'];
   const missingField = requiredFields.find(field => !(field in req.body));
 
@@ -113,10 +104,9 @@ router.post('/', jsonParser, (req, res) => {
       return hashPassword(password);
     })
     .then(passhash => {
-      console.log('===passhash', passhash);
       return knex('users')
         .insert([{username, passhash, first_name, last_name, email}])
-        .returning(['username', 'first_name', 'last_name', 'email']);
+        .returning(['id', 'username', 'first_name', 'last_name', 'email']);
     })
     .then(user => {
       return res.status(201).json(user);

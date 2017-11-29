@@ -10,12 +10,10 @@ const {dbGet} = require('../db-knex');
 const localStrategy = new LocalStrategy((username, password, callback) => {
   const knex = dbGet();
   let user;
-  // User.findOne({ username: username })
   knex('users')
     .where('username', username)
     .then(_user => {
       user = _user[0];
-      console.log(user);
       if (!user) {
         return Promise.reject({
           reason: 'LoginError',
