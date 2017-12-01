@@ -24,7 +24,7 @@ AS a ***USER***, you will be able to:
 * VIEW summary of expense report, sorted by categories
 
 ## WIREFRAME
-* TBD
+<img src='https://farm5.staticflickr.com/4580/24892005988_da6db93916_o.png' width='800' alt='app wireframe'>
 
 ## TECHNOLOGY STACK
 
