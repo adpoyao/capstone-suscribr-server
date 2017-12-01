@@ -15,7 +15,8 @@ const jwtAuth = passport.authenticate('jwt', {session: false});
 const {dbGet} = require('../db-knex');
 
 /** RETRIEVE ALL SUBSCRIPTIONS */
-router.get('/', jwtAuth, (req, res) => {
+//TODO: PUT BACK JWTAuth
+router.get('/', (req, res) => {
   const knex = dbGet();
   knex('subscriptions')
     .where('user_id', req.headers.user_id)
@@ -85,7 +86,7 @@ router.put('/:id', jsonParser, jwtAuth, (req, res) => {
 
   knex('subscriptions')
     .update({subscription_name: subscriptionName, category, price, frequency, cc_type: ccType, cc_digits: ccDigits, cc_nickname: ccNickname, due_date: dueDate, active, user_id: userId})
-    .where('user_id', req.headers.user_id)  
+    .where('user_id', userId)  
     .where('id', id)   
     .then(result => {
       //TO DO: Check what result shows when id does not match id
